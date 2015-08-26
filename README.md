@@ -14,7 +14,7 @@ npm install grunt-magento-cache --save-dev
 Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
 
 ```js
-grunt.loadNpmTasks('grunt-cache-busting');
+grunt.loadNpmTasks('grunt-magento-cache');
 ```
 
 [grunt]: http://gruntjs.com/
