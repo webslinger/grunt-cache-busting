@@ -1,6 +1,6 @@
-grunt-cache-busting
+grunt-magento-cache
 ===================
-> Cache busting files and updating references
+> Cache busting files and updating references, a derivative of Paul Tondeur's grunt-cache-busting to suit magento's needs.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.0`
@@ -25,83 +25,61 @@ grunt.loadNpmTasks('grunt-cache-busting');
 
 ```javascript
 'cache-busting': {
-	requirejs: {
-		replace: ['tmp/**/*.html'],
-		replacement: 'MainApp',
-		file: 'tmp/deploy/js/app/MainApp.min.js'
+    options: {
+        global: true
+    },
+	simplejs: {
+		replace: ['app/design/frontend/default/page.xml'],
+		replacement: 'simple.min.css',
+		file: 'tmp/deploy/js/app/simple.min.css'
 	},
-	css: {
-		replace: ['tmp/**/*.html'],
-		replacement: 'style.css',
-		file: 'tmp/deploy/css/style.css',
-		cleanup: true //Remove previously generated hashed files.
+	groupedjs: {
+	    replace: ['app/design/frontend/default/page.xml'],
+        replacement: 'grouped.min.css',
+        file: 'tmp/deploy/js/app/grouped.min.css'
 	}
 },
 ```
 
-Say that the index.html looks like this:
+Say that the page.xml looks like this:
 
-```html
-<html>
-<head>
-	<link rel="stylesheet" href="css/style.css" />
-
-	<script data-main="js/app/MainApp" src="js/vendors/requirejs/require.js"></script>
-</head>
-<body>
-
-</body>
-</html>
+```xml
+<PRODUCT_TYPE_simple>
+    <reference name="head">
+        <action method="removeItem"><type>skin_css</type><name>css/grouped.min.css</name></action>
+        <action method="addCss"><stylesheet>css/simple.min.css</stylesheet></action>
+    </reference>
+</PRODUCT_TYPE_simple>
+<PRODUCT_TYPE_grouped>
+    <reference name="head">
+        <action method="removeItem"><type>skin_css</type><name>css/simple.min.css</name></action>
+        <action method="addCss"><stylesheet>css/grouped.min.css</stylesheet></action>
+    </reference>
+</PRODUCT_TYPE_grouped>
 ```
 
 After running ```grunt cache-busting```, this file will look like this, and the files have changed accordingly on disk:
-```html
-<html>
-<head>
-	<link rel="stylesheet" href="css/style-HASH-OF-FILE-CONTENTS.css" />
-
-	<script data-main="js/app/MainApp-HASH-OF-FILE-CONTENTS" src="js/vendors/requirejs/require.js"></script>
-</head>
-<body>
-
-</body>
-</html>
-```
-
-Optionally, you can pass the `get_param` option to simply append a query string parameter to the path of the file. This is useful if you need to change the contents of a file, but not the filename.
-
-*Note: Some proxy servers do not re-request assets when a new query string is used. If a significant portion of your users use proxy servers, you may want to change the filename instead of appending a query string.*
-
-```javascript
-'cache-busting': {
-	css: {
-		replace: ['tmp/**/*.html'],
-		replacement: 'style.css',
-		file: 'tmp/deploy/css/style.css',
-		get_param: true,
-	}
-},
-```
-
-Will change the html above to this:
-```html
-<html>
-<head>
-	<link rel="stylesheet" href="css/style.css?v=HASH-OF-FILE-CONTENTS" />
-
-	<script data-main="js/app/MainApp-HASH-OF-FILE-CONTENTS" src="js/vendors/requirejs/require.js"></script>
-</head>
-<body>
-
-</body>
-</html>
+```xml
+<PRODUCT_TYPE_simple>
+    <reference name="head">
+        <action method="removeItem"><type>skin_css</type><name>css/grouped.min-HASH-OF-FILE-CONTENTS.css</name></action>
+        <action method="addCss"><stylesheet>css/simple.min-HASH-OF-FILE-CONTENTS.css</stylesheet></action>
+    </reference>
+</PRODUCT_TYPE_simple>
+<PRODUCT_TYPE_grouped>
+    <reference name="head">
+        <action method="removeItem"><type>skin_css</type><name>css/simple.min-HASH-OF-FILE-CONTENTS.css</name></action>
+        <action method="addCss"><stylesheet>css/grouped.min-HASH-OF-FILE-CONTENTS.css</stylesheet></action>
+    </reference>
+</PRODUCT_TYPE_grouped>
 ```
 
 
 ## API reference
+### options
+*options* has property global, which should be set to true when working with layout xml.
 ### replace
 *replace* is an array of source files that is searched for the strings to be replaced.
-It supports [minimatch paths](https://github.com/isaacs/minimatch).
 
 ### replacement
 *replacement* is a string for which we search and replace by the hash. If it contains an extension, the extension will be preserved.
@@ -111,4 +89,4 @@ It supports [minimatch paths](https://github.com/isaacs/minimatch).
 contents of this parameter.
 
 ## Credits
-This plugin is build on top of [grunt-text-replace](https://github.com/yoniholmes/grunt-text-replace/) and was inspired by [grunt-cache-bust](https://github.com/hollandben/grunt-cache-bust)
+This plugin is build on top of [grunt-cache-busting](https://github.com/PaulTondeur/grunt-cache-busting/)
